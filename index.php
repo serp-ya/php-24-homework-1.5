@@ -44,8 +44,6 @@ if ($responseStatusCode < 200 || $responseStatusCode > 299) {
 }
 
 $responseJSON = file_get_contents($requestUrl);
-$responseErrorMessages = [];
-
 
 if ($responseJSON !== false) {
     $responseArray = json_decode($responseJSON, true);
@@ -120,13 +118,8 @@ function labelDataFactory($label, $data) {
 </head>
 <body>
     <?php
-        if (count($responseErrorMessages) === 0) {
-            taginator('h2', $responseArray['name'], 'Город: ');
-            taginator('ul', $responseData);
-        } else {
-            taginator('h2', 'Возникли следующие ошибки:');
-            taginator('ul', $responseErrorMessages);
-        }
+        taginator('h2', $responseArray['name'], 'Город: ');
+        taginator('ul', $responseData);
     ?>
 </body>
 </html>
