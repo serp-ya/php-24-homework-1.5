@@ -57,10 +57,6 @@ $responseData = [
 ];
 
 
-taginator('h2', $responseArray['name'], 'Город: ');
-taginator('ul', $responseData);
-
-
 function taginator($tagname, $data,  $label = '') {
     echo "<$tagname>";
     
@@ -78,3 +74,20 @@ function taginator($tagname, $data,  $label = '') {
 
     echo "</$tagname>";
 }
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Weather</title>
+</head>
+<body>
+    <?php
+        taginator('h2', $responseArray['name'], 'Город: ');
+        taginator('ul', $responseData);
+    ?>
+</body>
+</html>
