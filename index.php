@@ -11,16 +11,23 @@
 // require $apiConfig
 require_once('apiConfig.php');
 
-$cityID = $_GET['cityID'];
-$cityName = $_GET['cityName'];
+if (isset($_GET['cityID'])) {
+    $cityID = $_GET['cityID'];
+} else {
+    $cityID = $apiConfig['cityID'];
+}
 
-$cityID = $cityID ? $cityID : $apiConfig['cityID'];
+if (isset($_GET['cityName'])) {
+    $cityName = $_GET['cityName'];
+}
+
 
 $queryParams = [
-    'appid' => $apiConfig['key'],
+  'appid' => $apiConfig['key'],
 ];
 
-if ($cityName) {
+
+if (isset($cityName) && $cityName) {
     $queryParams['q'] = $cityName;
 } else {
     $queryParams['id'] = $cityID;
@@ -33,7 +40,7 @@ $responseArray = (array) json_decode($responseJSON);
 $responseData = [
     [
         'label' => 'Погода',
-        'data' => $responseArray['weather']['main'],
+        'data' => $responseArray['weather'][0] -> main,
     ],
     [
         'label' => 'Температура',
