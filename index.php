@@ -36,23 +36,23 @@ if (isset($cityName) && $cityName) {
 $requestUrl = $apiConfig['url'] . '?' . http_build_query($queryParams);
 
 $responseJSON = file_get_contents($requestUrl);
-$responseArray = (array) json_decode($responseJSON);
+$responseArray = json_decode($responseJSON, true);
 $responseData = [
     [
         'label' => 'Погода',
-        'data' => $responseArray['weather'][0] -> main,
+        'data' => $responseArray['weather'][0]['main'],
     ],
     [
         'label' => 'Температура',
-        'data' => $responseArray['main'] -> temp,
+        'data' => $responseArray['main']['temp'],
     ],
     [
         'label' => 'Ветер (скорость)',
-        'data' => $responseArray['wind'] -> speed,
+        'data' => $responseArray['wind']['speed'],
     ],
     [
         'label' => 'Ветер (направление)',
-        'data' => $responseArray['wind'] -> deg,
+        'data' => $responseArray['wind']['deg'],
     ],
 ];
 
