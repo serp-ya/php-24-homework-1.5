@@ -35,29 +35,46 @@ if (isset($cityName) && $cityName) {
 
 $requestUrl = $apiConfig['url'] . '?' . http_build_query($queryParams);
 
+// Проверка корректного ответа сервера
+$headers = get_headers($requestUrl);
+$responseStatusCode = (int) explode(' ', $headers[0])[1];
+
+if ($responseStatusCode < 200 || $responseStatusCode > 299) {
+    exit("Не корректный код ответа сервера: $responseStatusCode");
+}
+
 $responseJSON = file_get_contents($requestUrl);
-$responseArray = json_decode($responseJSON, true);
-$responseData = [
-    [
-        'label' => 'Погода',
-        'data' => $responseArray['weather'][0]['main'],
-    ],
-    [
-        'label' => 'Температура',
-        'data' => $responseArray['main']['temp'],
-    ],
-    [
-        'label' => 'Ветер (скорость)',
-        'data' => $responseArray['wind']['speed'],
-    ],
-    [
-        'label' => 'Ветер (направление)',
-        'data' => $responseArray['wind']['deg'],
-    ],
-];
+$responseErrorMessages = [];
+
+
+if ($responseJSON !== false) {
+    $responseArray = json_decode($responseJSON, true);
+
+} else {
+    exit('Невозможно получить данные с сервера');
+}
+
+if ($responseArray === null) {
+    exit('Не возможно преобразовать данные из JSON');
+}
+
+$weather = $responseArray['weather'][0]['main'];
+$temp = $responseArray['main']['temp'];
+$windSpeed = $responseArray['wind']['speed'];
+$windDeg = $responseArray['wind']['deg'];
+
+$responseData = [];
+$responseData[] = labelDataFactory('Погода', $weather);
+$responseData[] = labelDataFactory('Температура', $temp);
+$responseData[] = labelDataFactory('Ветер (скорость)', $windSpeed);
+$responseData[] = labelDataFactory('Ветер (направление)', $windDeg);
 
 
 function taginator($tagname, $data,  $label = '') {
+    if (empty($data)) {
+        return;
+    }
+
     echo "<$tagname>";
     
     if ($label) {
@@ -66,13 +83,30 @@ function taginator($tagname, $data,  $label = '') {
 
     if (($tagname === 'ol' || $tagname === 'ul') && gettype($data) === 'array') {
         foreach ($data as $dataPice) {
+            if (empty($dataPice)) {
+                break;
+            }
+
             echo '<li>', $dataPice['label'], ': ', $dataPice['data'], '</li>';
         }
+
     } else {
       echo $data;
     }
 
     echo "</$tagname>";
+}
+
+
+function labelDataFactory($label, $data) {
+    if (empty($data)) {
+        return;
+    }
+
+    return [
+        'label' => $label,
+        'data' => $data,
+    ];
 }
 ?>
 
@@ -86,8 +120,13 @@ function taginator($tagname, $data,  $label = '') {
 </head>
 <body>
     <?php
-        taginator('h2', $responseArray['name'], 'Город: ');
-        taginator('ul', $responseData);
+        if (count($responseErrorMessages) === 0) {
+            taginator('h2', $responseArray['name'], 'Город: ');
+            taginator('ul', $responseData);
+        } else {
+            taginator('h2', 'Возникли следующие ошибки:');
+            taginator('ul', $responseErrorMessages);
+        }
     ?>
 </body>
 </html>
